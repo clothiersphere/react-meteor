@@ -39,20 +39,30 @@ App = React.createClass({
 	},
 
 	renderTasks() {
-		return this.data.tasks.map((task) =>{
-			return <Task key={task._id} task={task} />;
+		return this.data.tasks.map((task) => {
+			const currentUserId = this.data.currentUser && this.data.currentUser._id;
+			const showPrivateButton = task.owner === currentUserId;
+
+			return <Task 
+				key={task._id} 
+				task={task} 
+				showPrivateButton={showPrivateButton} />;
 		});
 	},
 
 	handleSubmit(event) {
 		event.preventDefault();
 		var text = this.refs.textInput.value;
-		Tasks.insert({
-			text: text,
-			createdAt: new Date(),	// current time
-			owner: Meteor.userId(), //_id of logged in user
-			username: Meteor.user().username // username of logged in user
-		});
+		
+		Meteor.call('addTask', text);
+		//calls no longer directly being called from client due to insecure being removed
+
+		// Tasks.insert({
+		// 	text: text,
+		// 	createdAt: new Date(),	// current time
+		// 	owner: Meteor.userId(), //_id of logged in user
+		// 	username: Meteor.user().username // username of logged in user
+		// });
 
 		React.findDOMNode(this.refs.textInput).value="";
 	},
